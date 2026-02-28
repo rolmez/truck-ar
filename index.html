@@ -1,76 +1,77 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-<meta charset="UTF-8">
-<title>Truck AR Experience</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Tırı Görüntüle</title>
+  
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+  
+  <style>
+    /* Sayfayı tam ekran yap ve kaydırmayı engelle */
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #f4f4f5; /* Yüklenirken şık bir gri arka plan */
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow: hidden;
+    }
 
-<script type="module"
-  src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
-</script>
+    /* Model görüntüleyiciyi tam ekran yap */
+    model-viewer {
+      width: 100%;
+      height: 100%;
+      --poster-color: transparent;
+    }
 
-<style>
-  body {
-    margin: 0;
-    background: #000;
-    font-family: Arial, sans-serif;
-  }
+    /* Kamerayı açacak olan özel AR Butonu */
+    .ar-button {
+      background-color: #0070f3; /* Vercel mavisi/şık bir mavi */
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 18px 24px;
+      font-size: 18px;
+      font-weight: 600;
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 112, 243, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 10;
+    }
 
-  model-viewer {
-    width: 100vw;
-    height: 100vh;
-    display: none; /* başlangıçta gizli */
-  }
-
-  .overlay {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    color: white;
-  }
-
-  .start-btn {
-    padding: 16px 32px;
-    font-size: 18px;
-    border-radius: 8px;
-    border: none;
-    background: white;
-    color: black;
-    cursor: pointer;
-  }
-</style>
+    .ar-button:active {
+      transform: translateX(-50%) scale(0.95);
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="overlay" id="overlay">
-  <h2>AR Experience</h2>
-  <button class="start-btn" onclick="startAR()">Tırı Ortamında Gör</button>
-</div>
-
-<model-viewer
-  id="model"
-  src="track.glb"
-  ar
-  ar-modes="quick-look"
-  ar-placement="floor"
-  camera-controls
-  shadow-intensity="1"
-  exposure="1">
-</model-viewer>
-
-<script>
-  function startAR() {
-    const model = document.getElementById("model");
-    model.style.display = "block";
-    document.getElementById("overlay").style.display = "none";
-    model.activateAR();
-  }
-</script>
+  <model-viewer 
+    src="truck.glb" 
+    ar 
+    ar-modes="webxr scene-viewer quick-look" 
+    camera-controls 
+    shadow-intensity="1"
+    environment-image="neutral"
+    auto-rotate>
+    
+    <button slot="ar-button" class="ar-button">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+        <circle cx="12" cy="13" r="4"></circle>
+      </svg>
+      Kamerada Görüntüle
+    </button>
+    
+  </model-viewer>
 
 </body>
 </html>
