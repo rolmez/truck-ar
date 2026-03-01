@@ -3,40 +3,105 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Tırı Görüntüle</title>
+  <title>AR Tır Deneyimi</title>
   
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
   
   <style>
-    /* Sayfayı tam ekran yap ve kaydırmayı engelle */
+    /* Genel Sayfa Yapısı */
     body {
       margin: 0;
       padding: 0;
       width: 100vw;
-      height: 100dvh;
-      background-color: #f4f4f5; /* Yüklenirken şık bir gri arka plan */
+      height: 100dvh; /* Dinamik yükseklik: URL çubuğu sorununu çözer */
+      background-color: #f4f4f5;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       overflow: hidden;
     }
 
-    /* Model görüntüleyiciyi tam ekran yap */
     model-viewer {
       width: 100%;
       height: 100%;
-      --poster-color: transparent;
+      --poster-color: transparent; /* Varsayılan gri yükleme rengini kaldırır */
     }
 
-    /* Kamerayı açacak olan özel AR Butonu */
+    /* 1. Yükleme Ekranı (Spinner) Stilleri */
+    .loading-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      width: 100%;
+      background-color: #f4f4f5;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(0, 112, 243, 0.2);
+      border-top-color: #0070f3;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .loading-text {
+      color: #333;
+      font-weight: 500;
+      font-size: 16px;
+    }
+
+    /* 2. Hotspot (Bilgi Noktaları) Stilleri */
+    .hotspot {
+      display: block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: none;
+      background-color: #0070f3;
+      box-shadow: 0 0 8px rgba(0, 112, 243, 0.8);
+      box-sizing: border-box;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.3s ease;
+    }
+    .hotspot:hover {
+      transform: scale(1.2);
+    }
+    .annotation {
+      background-color: #ffffff;
+      color: #333;
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 8px;
+      padding: 8px 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      pointer-events: none; /* Baloncuğun tıklamaları engellememesi için */
+      opacity: 0.95;
+    }
+
+    /* 3. AR Kamerada Görüntüle Butonu */
     .ar-button {
-      background-color: #0070f3; /* Vercel mavisi/şık bir mavi */
+      background-color: #0070f3;
       color: white;
       border: none;
       border-radius: 12px;
-      padding: 18px 24px;
+      padding: 16px 24px;
       font-size: 18px;
       font-weight: 600;
       position: absolute;
-      bottom: calc(80px + env(safe-area-inset-bottom));
+      /* Güvenli alan ve dinamik yükseklik ile buton konumu */
+      bottom: calc(60px + env(safe-area-inset-bottom)); 
       left: 50%;
       transform: translateX(-50%);
       cursor: pointer;
@@ -46,7 +111,6 @@
       gap: 10px;
       z-index: 10;
     }
-
     .ar-button:active {
       transform: translateX(-50%) scale(0.95);
     }
@@ -55,24 +119,39 @@
 <body>
 
   <model-viewer 
-  src="truck.glb" 
-  ios-src="truck.usdz"
-  ar 
-  ar-modes="webxr scene-viewer quick-look" 
-  camera-controls 
-  touch-action="none" 
-  shadow-intensity="1"
-  environment-image="neutral"
-  min-camera-orbit="auto 0deg auto"
-  max-camera-orbit="auto 180deg auto"
-  auto-rotate>
+    src="truck.glb" 
+    ios-src="truck.usdz" 
+    ar 
+    ar-modes="webxr scene-viewer quick-look" 
+    camera-controls 
+    touch-action="none" 
+    shadow-intensity="1.5"
+    shadow-softness="1"
+    exposure="1.1"
+    environment-image="neutral"
+    min-camera-orbit="auto 0deg auto"
+    max-camera-orbit="auto 180deg auto"
+    auto-rotate>
     
+    <div slot="poster" class="loading-screen">
+      <div class="spinner"></div>
+      <div class="loading-text">3D Model Hazırlanıyor...</div>
+    </div>
+
+    <button class="hotspot" slot="hotspot-1" data-position="0m 2m -1.5m" data-normal="0m 1m 0m">
+      <div class="annotation">Palmiye Tekstil Lojistik</div>
+    </button>
+
+    <button class="hotspot" slot="hotspot-2" data-position="0m 1.2m 2m" data-normal="0m 1m 0m">
+      <div class="annotation">Adana Merkez Dağıtım</div>
+    </button>
+
     <button slot="ar-button" class="ar-button">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
         <circle cx="12" cy="13" r="4"></circle>
       </svg>
-      Kamerada Görüntüle
+      Camera
     </button>
     
   </model-viewer>
