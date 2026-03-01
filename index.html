@@ -13,7 +13,7 @@
       margin: 0;
       padding: 0;
       width: 100vw;
-      height: 100dvh; /* Dinamik yükseklik: URL çubuğu sorununu çözer */
+      height: 100dvh;
       background-color: #f4f4f5;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       overflow: hidden;
@@ -22,10 +22,10 @@
     model-viewer {
       width: 100%;
       height: 100%;
-      --poster-color: transparent; /* Varsayılan gri yükleme rengini kaldırır */
+      --poster-color: transparent;
     }
 
-    /* 1. Yükleme Ekranı (Spinner) Stilleri */
+    /* 1. Yükleme Ekranı Stilleri */
     .loading-screen {
       display: flex;
       flex-direction: column;
@@ -56,28 +56,29 @@
       font-size: 16px;
     }
 
-    /* 2. Hotspot (Bilgi Noktaları) Stilleri */
+    /* 2. Hotspot (Mavi Nokta) Stilleri */
     .hotspot {
       display: block;
-      width: 12px;
-      height: 12px;
+      width: 16px;
+      height: 16px;
       border-radius: 50%;
       border: none;
       background-color: #0070f3;
-      box-shadow: 0 0 8px rgba(0, 112, 243, 0.8);
+      box-shadow: 0 0 8px rgba(0, 112, 243, 0.8), 0 0 0 4px rgba(0, 112, 243, 0.2);
       box-sizing: border-box;
       cursor: pointer;
       position: relative;
-      transition: transform 0.3s ease;
+      transition: transform 0.3s ease, background-color 0.3s ease;
     }
-    .hotspot:hover {
-      transform: scale(1.2);
+    .hotspot:hover, .hotspot:active {
+      transform: scale(1.3);
+      background-color: #005bb5;
     }
     .annotation {
       background-color: #ffffff;
       color: #333;
       position: absolute;
-      top: 20px;
+      top: 24px;
       left: 50%;
       transform: translateX(-50%);
       border-radius: 8px;
@@ -86,8 +87,7 @@
       font-size: 14px;
       font-weight: 600;
       white-space: nowrap;
-      pointer-events: none; /* Baloncuğun tıklamaları engellememesi için */
-      opacity: 0.95;
+      pointer-events: none;
     }
 
     /* 3. AR Kamerada Görüntüle Butonu */
@@ -100,8 +100,7 @@
       font-size: 18px;
       font-weight: 600;
       position: absolute;
-      /* Güvenli alan ve dinamik yükseklik ile buton konumu */
-      bottom: calc(60px + env(safe-area-inset-bottom)); 
+      bottom: calc(40px + env(safe-area-inset-bottom)); 
       left: 50%;
       transform: translateX(-50%);
       cursor: pointer;
@@ -113,6 +112,78 @@
     }
     .ar-button:active {
       transform: translateX(-50%) scale(0.95);
+    }
+
+    /* 4. ALTTAN AÇILAN BİLGİ KARTI (Yeni Eklendi) */
+    .bottom-sheet {
+      position: absolute;
+      bottom: -100%; /* Başlangıçta ekranın altında gizli */
+      left: 0;
+      width: 100%;
+      background-color: white;
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      padding: 24px 24px calc(24px + env(safe-area-inset-bottom)) 24px;
+      box-sizing: border-box;
+      box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
+      transition: bottom 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    /* Kart açıkken alacağı pozisyon */
+    .bottom-sheet.show {
+      bottom: 0;
+    }
+
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .sheet-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #111;
+      margin: 0;
+    }
+    .close-btn {
+      background: #f0f0f0;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #555;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sheet-text {
+      font-size: 15px;
+      color: #555;
+      margin: 0 0 16px 0;
+      line-height: 1.5;
+    }
+    .action-link {
+      background-color: #111;
+      color: white;
+      text-decoration: none;
+      text-align: center;
+      padding: 16px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 16px;
+      display: block;
+      transition: background-color 0.2s;
+    }
+    .action-link:hover {
+      background-color: #333;
     }
   </style>
 </head>
@@ -138,7 +209,7 @@
       <div class="loading-text">3D Model Hazırlanıyor...</div>
     </div>
 
-    <button class="hotspot" slot="hotspot-1" data-position="0m 0.7m 0m" data-normal="0m 1m 0m">
+    <button class="hotspot" slot="hotspot-1" data-position="0m 0.7m 0m" data-normal="1m 0m 0m" id="kyk-hotspot">
       <div class="annotation">KYK Yapı Kimyasalları</div>
     </button>
 
@@ -151,6 +222,32 @@
     </button>
     
   </model-viewer>
+
+  <div class="bottom-sheet" id="info-sheet">
+    <div class="sheet-header">
+      <h3 class="sheet-title">KYK Yapı Kimyasalları</h3>
+      <button class="close-btn" id="close-sheet">×</button>
+    </div>
+    <p class="sheet-text">Yenilikçi ürün yelpazemizi ve lojistik ağımızı incelemek için web sitemizi ziyaret edebilirsiniz.</p>
+    
+    <a href="https://www.kyk.com.tr" target="_blank" class="action-link">Detaylı Bilgi İçin Tıklayın</a>
+  </div>
+
+  <script>
+    const hotspot = document.getElementById('kyk-hotspot');
+    const infoSheet = document.getElementById('info-sheet');
+    const closeBtn = document.getElementById('close-sheet');
+
+    // Mavi noktaya tıklanınca kartı göster
+    hotspot.addEventListener('click', () => {
+      infoSheet.classList.add('show');
+    });
+
+    // Çarpı (X) butonuna tıklanınca kartı gizle
+    closeBtn.addEventListener('click', () => {
+      infoSheet.classList.remove('show');
+    });
+  </script>
 
 </body>
 </html>
