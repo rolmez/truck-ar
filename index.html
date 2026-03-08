@@ -90,28 +90,57 @@
       pointer-events: none;
     }
 
-    /* 3. AR Kamerada Görüntüle Butonu */
+/* 3. AR Kamerada Görüntüle Butonu ve Yönlendirme Metni */
+    
+    /* Kapsayıcı Div Stili */
+    .ar-button-container {
+      position: absolute;
+      bottom: calc(40px + env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px; /* Yazı ile buton arasındaki boşluk */
+      z-index: 10;
+      width: 100%;
+    }
+
+    /* Üstteki Yönlendirme Metni Stili */
+    .ar-hint-text {
+      color: #555;
+      font-size: 14px;
+      font-weight: 500;
+      text-align: center;
+      background-color: rgba(255, 255, 255, 0.85); /* Hafif saydam beyaz arka plan okunabilirliği artırır */
+      padding: 6px 16px;
+      border-radius: 20px;
+      backdrop-filter: blur(4px); /* Arkadaki tır modelini hafifçe bulanıklaştırır */
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    /* Kamera Butonu Stili */
     .ar-button {
       background-color: #0070f3;
       color: white;
       border: none;
       border-radius: 12px;
-      padding: 16px 24px;
+      padding: 16px 32px; /* Butonu biraz genişlettik */
       font-size: 18px;
       font-weight: 600;
-      position: absolute;
-      bottom: calc(40px + env(safe-area-inset-bottom)); 
-      left: 50%;
-      transform: translateX(-50%);
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(0, 112, 243, 0.4);
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 10px;
-      z-index: 10;
+      width: auto;
+      transition: transform 0.2s ease, background-color 0.2s ease;
     }
+    
     .ar-button:active {
-      transform: translateX(-50%) scale(0.95);
+      transform: scale(0.95); /* Kapsayıcı div olduğu için translateX'i kaldırdık, sadece küçülme efekti kaldı */
+      background-color: #005bb5;
     }
 
     /* 4. ALTTAN AÇILAN BİLGİ KARTI (Yeni Eklendi) */
@@ -209,17 +238,20 @@
       <div class="loading-text">3D Model Hazırlanıyor...</div>
     </div>
 
-    <button class="hotspot" slot="hotspot-1" data-position="0m -0.2m 0m" data-normal="1m 0m 0m" id="kyk-hotspot">
+    <button class="hotspot" slot="hotspot-1" data-position="0m 0.8 0m" data-normal="1m 0m 0m" id="kyk-hotspot">
       <div class="annotation">KYK Yapı Kimyasalları</div>
     </button>
 
-    <button slot="ar-button" class="ar-button">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-        <circle cx="12" cy="13" r="4"></circle>
-      </svg>
-      Kamera
-    </button>
+    <div slot="ar-button" class="ar-button-container">
+      <div class="ar-hint-text">Gerçek ortamda görüntülemek için</div>
+      <button class="ar-button">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+          <circle cx="12" cy="13" r="4"></circle>
+        </svg>
+        Kamera
+      </button>
+    </div>
     
   </model-viewer>
 
